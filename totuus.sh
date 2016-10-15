@@ -52,38 +52,43 @@ get_addrs()
 
 request_store_info()
 {
-		if [ "${addr:0:3}" != "10." -a  "${addr:0:3}" != "192" -a "${addr:0:3}" != "172" -a "${addr:0:3}" != "0.0" ];then	
-			gg=`grep "$addr" $STORE_PATH`
-			if [ -z "$gg" ];then
+	local addr
+	[[ -z $1 ]]\
+		&& return
 
-				info=`whois $addr`
-				loc=`curl "ipinfo.io/$addr/loc" 2> /dev/null`
+	addr=$1
+	if [ "${addr:0:3}" != "10." -a  "${addr:0:3}" != "192" -a "${addr:0:3}" != "172" -a "${addr:0:3}" != "0.0" ];then
+		gg=`grep "$addr" $STORE_PATH`
+		if [ -z "$gg" ];then
 
-				netname=`echo "$info"|grep -i "netname"| tr -s '\n' " " |tr -s " " |cut -d " " -f 2`
-				orgname=`echo "$info"|grep -i "OrgName"| tr -s '\n' " " |tr -s " " |cut -d " " -f 2`
-				country=`echo "$info"|grep -i "Country"| tr -s '\n' " " |tr -s " " |cut -d " " -f 2`
-				city=`echo "$info"|grep -i "city"| tr -s '\n' " " |tr -s " " |cut -d ":" -f 2`
+			info=`whois $addr`
+			loc=`curl "ipinfo.io/$addr/loc" 2> /dev/null`
 
-				#store the addresses in a file
-				echo -ne "$YELLOW$addr$DFLT$SEP"		>> $STORE_PATH
-				echo -ne "$BOLD$netname$DFLT$SEP"		>> $STORE_PATH
-				echo -ne "$BOLD$orgname$DFLT$SEP"		>> $STORE_PATH
-				echo -ne "$BOLD$city$DFLT$SEP"		>> $STORE_PATH
-				echo -ne "$loc$SEP" 			>> $STORE_PATH
-				echo "$country" 			>> $STORE_PATH
+			netname=`echo "$info"|grep -i "netname"| tr -s '\n' " " |tr -s " " |cut -d " " -f 2`
+			orgname=`echo "$info"|grep -i "OrgName"| tr -s '\n' " " |tr -s " " |cut -d " " -f 2`
+			country=`echo "$info"|grep -i "Country"| tr -s '\n' " " |tr -s " " |cut -d " " -f 2`
+			city=`echo "$info"|grep -i "city"| tr -s '\n' " " |tr -s " " |cut -d ":" -f 2`
 
-				#display info
-				echo -ne "$YELLOW$addr$DFLT\t"		
-				echo -ne "$BOLD$netname$DFLT\t"
-				echo -ne "$BOLD$orgname$DFLT\t"	
-				echo -ne "$BOLD$city$DFLT\t"	
-				echo -ne "$loc\t"
-				echo "$country"
-			else
-				echo -e "$gg\t$LIGHTYELLOW (from store)$DFLT"
-			fi
-		
+			#store the addresses in a file
+			echo -ne "$YELLOW$addr$DFLT$SEP"		>> $STORE_PATH
+			echo -ne "$BOLD$netname$DFLT$SEP"		>> $STORE_PATH
+			echo -ne "$BOLD$orgname$DFLT$SEP"		>> $STORE_PATH
+			echo -ne "$BOLD$city$DFLT$SEP"		>> $STORE_PATH
+			echo -ne "$loc$SEP" 			>> $STORE_PATH
+			echo "$country" 			>> $STORE_PATH
+
+			#display info
+			echo -ne "$YELLOW$addr$DFLT\t"
+			echo -ne "$BOLD$netname$DFLT\t"
+			echo -ne "$BOLD$orgname$DFLT\t"
+			echo -ne "$BOLD$city$DFLT\t"
+			echo -ne "$loc\t"
+			echo "$country"
+		else
+			echo -e "$gg\t$LIGHTYELLOW (from store)$DFLT"
 		fi
+
+	fi
 }
 
 convert_hex_addr_to_dec()
