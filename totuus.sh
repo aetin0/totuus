@@ -24,6 +24,7 @@ SEP=";"
 STORE_DIR=".totuus"
 STORE_FILE="map.dat"
 STORE_PATH="/home/$USER/$STORE_DIR/$STORE_FILE"
+declare -g FILTER_ADDR=("10." "192" "172" "0.0")
 
 make_spec_dir()
 {
@@ -50,6 +51,21 @@ get_addrs()
 	echo $array
 }
 
+is_local_addr()
+{
+	local addr
+
+	[[ -z $1 ]]\
+		&& return 1
+	addr=$1
+
+	for i in "${FILTER_ADDR[@]}";do
+		[[ "${addr:0:3}" == "$i" ]]\
+			&& return 0
+	done
+	return 1
+}
+
 request_store_info()
 {
 	local addr
@@ -57,7 +73,9 @@ request_store_info()
 		&& return
 
 	addr=$1
-	if [ "${addr:0:3}" != "10." -a  "${addr:0:3}" != "192" -a "${addr:0:3}" != "172" -a "${addr:0:3}" != "0.0" ];then
+	is_local_addr $addr
+	ret=$?
+	if [ $ret -ne 0 ];then
 		gg=`grep "$addr" $STORE_PATH`
 		if [ -z "$gg" ];then
 
@@ -120,3 +138,4 @@ for i in $addresses;do
 	addr=`convert_hex_addr_to_dec "$addr"`
 	request_store_info "$addr"
 done
+
