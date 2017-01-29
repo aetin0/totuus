@@ -1,2 +1,2 @@
 # totuus
-Display current TCP connections
+Display & identify current TCP connections
